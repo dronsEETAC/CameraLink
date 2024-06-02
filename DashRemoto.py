@@ -1,4 +1,5 @@
 import json
+import threading
 import time
 import tkinter as tk
 from Camera import Camera
@@ -8,6 +9,77 @@ import paho.mqtt.client as mqtt
 import cv2 as cv
 import base64
 import numpy as np
+
+
+import asyncio
+import websockets
+
+async def receive_and_display_frames():
+    global connectWebsocket
+    global serverIP
+    global runningWebsocketStreaming
+    uri = "ws://localhost:8765"  # Adjust the WebSocket server URL
+    uri = "ws://"+serverIP+":8765"  # Adjust the WebSocket server URLç
+    print ('uri ', uri)
+    frame_count = 0
+    is_processing = False  # Flag to track if the client is busy processing a frame
+
+    runningWebsocketStreaming = True
+    while runningWebsocketStreaming:
+        if connectWebsocket:
+            try:
+                async with websockets.connect(uri) as websocket:
+                    print("Connected to the server.")
+
+                    ''' # Send the video file link to the server
+                    video_link = "rtsp://zephyr.rtsp.stream/movie?streamKey=YOUR_KEY"
+    
+                    await websocket.send(video_link)
+                    print(f"Sent video link: {video_link}")'''
+
+                    while connectWebsocket:
+                        # Check if the client is already processing a frame
+                        if is_processing:
+                            continue
+
+                        # Receive a base64-encoded frame from the server
+                        base64_frame = await websocket.recv()
+
+                        # Check if the received response is empty (broken response) and skip it
+                        if not base64_frame:
+                            continue
+
+                        # Set the processing flag to indicate that the client is busy
+                        is_processing = True
+
+                        frame_count += 1
+                        print(f"Received frame {frame_count}...")
+
+                        try:
+                            # Decode the base64 frame and display it
+                            frame_data = base64.b64decode(base64_frame)
+                            frame_np = np.frombuffer(frame_data, np.uint8)
+                            frame = cv.imdecode(frame_np, 1)
+                            cv.imshow("Websockets", frame)
+                            cv.waitKey(1)  # Adjust the delay as needed
+
+                        except Exception as e:
+                            print(f"Error decoding frame: {str(e)}")
+
+                        # Reset the processing flag once frame processing is complete
+                        is_processing = False
+
+            except websockets.exceptions.ConnectionClosedError:
+                print("Connection to the server closed. Reconnecting...")
+                await asyncio.sleep(5)  # Wait for a few seconds before attempting to reconnect
+            except Exception as e:
+                print(f"Error on the client: {str(e)}")
+
+
+
+
+
+
 
 def on_connect(client, userdata, flags, rc):
     global connectBtn
@@ -21,7 +93,7 @@ def on_connect(client, userdata, flags, rc):
         connectBtn['bg'] = 'red'
 
 def on_message(client, userdata, message):
-    global origin
+    global origin, serverIP, getServerIPBtn
 
     splited = message.topic.split("/")
     origin = splited[0]
@@ -48,15 +120,18 @@ def on_message(client, userdata, message):
         img = cv.imdecode(npimg, 1)
         # show stream in a separate opencv window
         img = cv.resize(img, (640, 480))
-        cv.imshow("Stream", img)
+        cv.imshow("MQTT", img)
         cv.waitKey(1)
 
-
+    if command == "IP":
+        serverIP = message.payload.decode("utf-8")
+        getServerIPBtn['text'] = 'Ya tengo la IP'
+        getServerIPBtn['fg'] = 'white'
+        getServerIPBtn['bg'] = 'green'
 
 
 def connect ():
     global client
-    camera = Camera()
 
     client = mqtt.Client("DashRemoto", transport="websockets")
     client.on_message = on_message
@@ -72,28 +147,65 @@ def takePicture ():
     client.publish("DashRemoto/service/takePicture")
 
 
-def videoStream ():
-    global client, streaming
-    global qualitySldr, frequencySldr, videoStreamBtn
+def videoStreamMQTT ():
+    global client, streamingMQTT
+    global qualitySldr, frequencySldr, videoStreamMQTTBtn
 
-    if streaming:
+    if streamingMQTT:
         client.publish("DashRemoto/service/stopVideoStream")
-        videoStreamBtn['text'] = 'Iniciar video streaming'
-        videoStreamBtn['fg'] = 'black'
-        videoStreamBtn['bg'] = 'dark orange'
-        streaming = False
+        videoStreamMQTTBtn['text'] = 'Iniciar video streaming via MQTT'
+        videoStreamMQTTBtn['fg'] = 'black'
+        videoStreamMQTTBtn['bg'] = 'dark orange'
+        streamingMQTT = False
 
     else:
         parameters = {'quality': int (qualitySldr.get()),
                       'frequency': int (frequencySldr.get())}
         parameters_json = json.dumps(parameters)
+
         client.publish("DashRemoto/service/startVideoStreamMQTT", parameters_json)
-        videoStreamBtn['text'] = 'Detener video streaming'
-        videoStreamBtn['fg'] = 'white'
-        videoStreamBtn['bg'] = 'green'
-        streaming = True
+        videoStreamMQTTBtn['text'] = 'Detener video streaming'
+        videoStreamMQTTBtn['fg'] = 'white'
+        videoStreamMQTTBtn['bg'] = 'green'
+        streamingMQTT = True
+async def startStreamingWebsockets():
+    asyncio.get_event_loop().run_until_complete(receive_and_display_frames())
+
+def startConnection ():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    asyncio.get_event_loop().run_until_complete(receive_and_display_frames())
+def getServerIP ():
+    global client
+    client.publish("DashRemoto/service/getServerIP")
 
 
+def videoStreamWebsocket ():
+    global client, streamingWebsocket
+    global qualitySldr, frequencySldr, videoStreamWebsocketBtn
+    global connectWebsocket
+
+    if streamingWebsocket:
+        videoStreamWebsocketBtn['text'] = 'Iniciar video streaming via Websocket'
+        videoStreamWebsocketBtn['fg'] = 'black'
+        videoStreamWebsocketBtn['bg'] = 'dark orange'
+        streamingWebsocket = False
+        connectWebsocket = False
+
+    else:
+        parameters = {'quality': int (qualitySldr.get()),
+                      'frequency': int (frequencySldr.get())}
+        parameters_json = json.dumps(parameters)
+        print ('publico start websocket')
+        client.publish("DashRemoto/service/startVideoStreamWebsocket", parameters_json)
+        connectWebsocket = True
+        websocketThread = threading.Thread (target = startConnection)
+        websocketThread.start()
+
+        videoStreamWebsocketBtn['text'] = 'Detener video streaming'
+        videoStreamWebsocketBtn['fg'] = 'white'
+        videoStreamWebsocketBtn['bg'] = 'green'
+        streamingWebsocket = True
 
 
 
@@ -102,23 +214,27 @@ def stopVideoStream ():
     client.publish("DashRemoto/service/stopVideoStreamMQTT")
 
 def close():
-    global client, ventana
+    global client, ventana, runningWebsocketStreaming
     client.publish("DashRemoto/service/closeCamera")
+    runningWebsocketStreaming = False
     ventana.destroy()
 
 
 
 def crear_ventana():
     global camera
-    global connectBtn, qualitySldr, frequencySldr, videoStreamBtn, takePictureBtn
-    global streaming
+    global connectBtn, qualitySldr, frequencySldr, videoStreamMQTTBtn, takePictureBtn, videoStreamWebsocketBtn
+    global streamingMQTT, streamingWebsocket, connectWebsocket
     global ventana
+    global getServerIPBtn
 
-    streaming = False
+    streamingMQTT = False
+    streamingWebsocket = False
+    connectWebsocket = False
 
 
     ventana = tk.Tk()
-    ventana.geometry('200x400')
+    ventana.geometry('350x400')
     ventana.title("Dash Camara")
     ventana.rowconfigure(0, weight=1)
     ventana.rowconfigure(1, weight=1)
@@ -127,6 +243,7 @@ def crear_ventana():
     ventana.rowconfigure(4, weight=1)
     ventana.rowconfigure(5, weight=1)
     ventana.rowconfigure(6, weight=1)
+    ventana.rowconfigure(7, weight=1)
     ventana.columnconfigure(0, weight=1)
 
 
@@ -148,14 +265,23 @@ def crear_ventana():
     frequencySldr.grid(row=3, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
 
-    videoStreamBtn = tk.Button(ventana, text="Inicia video stream", bg="dark orange", command=videoStream)
-    videoStreamBtn.grid(row=4, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    videoStreamMQTTBtn = tk.Button(ventana, text="Inicia video stream via MQTT", bg="dark orange", command=videoStreamMQTT)
+    videoStreamMQTTBtn.grid(row=4, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+
+    getServerIPBtn = tk.Button(ventana, text="Obtener IP del servidor (para conexión por  websocket)", bg="dark orange",
+                                        command=getServerIP)
+    getServerIPBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+
+    videoStreamWebsocketBtn = tk.Button(ventana, text="Inicia video stream via websocket", bg="dark orange", command=videoStreamWebsocket)
+    videoStreamWebsocketBtn.grid(row=6, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
     '''stopVideoStreamBtn = tk.Button(ventana, text="Detener video stream", bg="dark orange", command=stopVideoStream)
     stopVideoStreamBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
     '''
     closeBtn = tk.Button(ventana, text="Cerrar", bg="dark orange", command = close)
-    closeBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    closeBtn.grid(row=7, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+
+
 
 
 

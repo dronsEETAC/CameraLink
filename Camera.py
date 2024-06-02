@@ -21,11 +21,15 @@ class Camera(object):
             # Read Frame
             ret, frame = self.cap.read()
             if ret:
-                callback (frame, params)
+                if params != None:
+                    callback (frame, params)
+                else:
+                    callback(frame)
+
                 time.sleep(period)
 
 
-    def StartVideoStream (self, frequency, callback, params):
+    def StartVideoStream (self, frequency, callback, params = None):
         self.videoStreaming = True
         streamingThread = threading.Thread(
             target=self._start_video_stream,

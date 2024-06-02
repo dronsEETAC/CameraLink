@@ -9,19 +9,22 @@ import time
 import json
 from Camera import *
 
-'''import asyncio
+import asyncio
 import websockets
 
 
 
-def process_new_frame (frame, params):
+def process_new_frame (frame):
     global newFrame, newFrameReady
     newFrame = frame
     newFrameReady = True
 
 
 async def process_video(websocket, path):
+    global camera
     global newFrame, newFrameReady
+    global quality, frequency
+
     try:
         print("Client connected.")
 
@@ -35,8 +38,8 @@ async def process_video(websocket, path):
         #cap = cv2.VideoCapture(0)
         ''' if not cap.isOpened():
             raise IOError("Failed to open video file: " + video_link)'''
-        camera = Camera()
-        camera.StartVideoStream(10, process_new_frame, 30)
+
+        camera.StartVideoStream(frequency, process_new_frame)
         frame_count = 0
         isProcessing = False
         processing_delay = 0.0  # Simulated delay between sending responses (adjust as needed)
@@ -48,7 +51,6 @@ async def process_video(websocket, path):
                 continue
 
             # Read a frame from the video
-            #ret, frame = cap.read()
             ret, frame = camera.TakePicture()
             if not ret:
                 break
@@ -65,7 +67,7 @@ async def process_video(websocket, path):
             #gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
             # Encode the frame as base64
-            _, frame_data = cv.imencode('.jpg', newFrame)
+            _,  frame_data = cv.imencode(".jpg", newFrame, [int(cv.IMWRITE_JPEG_QUALITY), quality])
             base64_frame = base64.b64encode(frame_data).decode("utf-8")
 
             # Send the base64-encoded frame to the client
@@ -94,7 +96,7 @@ def start_server_websockets ():
     print("WebSocket server started.")
     asyncio.get_event_loop().run_until_complete(start_server)
     asyncio.get_event_loop().run_forever()
-'''
+
 
 def publish_video_stream (frame, quality):
     global external_client, origin
@@ -106,6 +108,7 @@ def publish_video_stream (frame, quality):
 def on_message(client, userdata, message):
     global camera
     global origin
+    global quality, frequency
 
     splited = message.topic.split("/")
     origin = splited[0]
@@ -124,13 +127,17 @@ def on_message(client, userdata, message):
         parameters = json.loads(message.payload)
         camera.StartVideoStream(parameters['frequency'], publish_video_stream, parameters['quality']  )
 
-    if command == "startVideoStreamWebSocket":
+    if command == "startVideoStreamWebsocket":
         print("start video stream via webSockets")
         parameters = json.loads(message.payload)
-        websocketThread = threading.Thread (target = start_server_websockets)
-        websocketThread.start()
+        frequency = parameters['frequency']
+        quality = parameters['quality']
 
-        #camera.StartVideoStream(parameters['frequency'], publish_video_stream, parameters['quality'])
+    if command == "getServerIP":
+        print("get server IP")
+        IP  = "localhost"
+        client.publish("service/" + origin + "/IP", IP)
+
 
     if command == "stopVideoStream":
         print("stop video stream")
@@ -217,8 +224,12 @@ def Service(connection_mode, operation_mode, external_broker, username, password
 
     print("Waiting....")
     external_client.subscribe("+/service/#", 2)
+    external_client.loop_start()
 
-    external_client.loop_forever()
+    start_server = websockets.serve(process_video, "localhost", 8765)  # Adjust the host and port
+    print("WebSocket server started.")
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()
 
 
 if __name__ == "__main__":
