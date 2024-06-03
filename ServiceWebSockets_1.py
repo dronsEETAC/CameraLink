@@ -11,31 +11,30 @@ from Camera import *
 
 import asyncio
 import websockets
-import netifaces as ni
 
 
 
 def process_new_frame (frame):
-    # Aqui recibo los frames que me envia camLib
     global newFrame, newFrameReady
     newFrame = frame
     newFrameReady = True
 
 
-
 async def process_video(websocket, path):
     global camera
     global newFrame, newFrameReady
-    global quality, frequency, videoStreaming, running
+    global quality, frequency, aaa, videoStreaming
 
     try:
         print("Client connected.")
 
+
+        camera.StartVideoStream(frequency, process_new_frame)
         frame_count = 0
         isProcessing = False
         processing_delay = 0.0  # Simulated delay between sending responses (adjust as needed)
-        running = True
-        while running:
+        aaa = True
+        while aaa:
             if videoStreaming:
                 # Check if the server is still processing the previous frame
                 if isProcessing:
@@ -51,6 +50,9 @@ async def process_video(websocket, path):
 
                 frame_count += 1
                 print(f"Processing frame {frame_count}...")
+
+                # Convert the frame to grayscale
+                #gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
                 # Encode the frame as base64
                 _,  frame_data = cv.imencode(".jpg", newFrame, [int(cv.IMWRITE_JPEG_QUALITY), quality])
@@ -76,11 +78,12 @@ async def process_video(websocket, path):
         print(f"Error on the server: {str(e)}")
 
 
-def start_server_websockets ():
-    start_server = websockets.serve(process_video, "0.0.0.0", 8765)  # Adjust the host and port
+
+'''def start_server_websockets ():
+    start_server = websockets.serve(process_video, "localhost", 8765)  # Adjust the host and port
     print("WebSocket server started.")
     asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()
+    asyncio.get_event_loop().run_forever()'''
 
 
 def publish_video_stream (frame, quality):
@@ -93,8 +96,7 @@ def publish_video_stream (frame, quality):
 def on_message(client, userdata, message):
     global camera
     global origin
-    global quality, frequency, videoStreaming, running
-    global op_mode
+    global quality, frequency, videoStreaming
 
     splited = message.topic.split("/")
     origin = splited[0]
@@ -123,29 +125,15 @@ def on_message(client, userdata, message):
 
     if command == "getServerIP":
         print("get server IP")
-        if op_mode == 'simulation':
-            IP = "localhost"
-        else:
-            IP = ni.ifaddresses('wlan0')[ni.AF_INET][0]['addr']
+        IP  = "localhost"
         client.publish("service/" + origin + "/IP", IP)
+
 
     if command == "stopVideoStream":
         print("stop video stream")
         videoStreaming = False
         camera.StopVideoStream()
 
-    if command == "setParameters":
-        print("set parameters")
-        parameters = json.loads(message.payload)
-        frequency = parameters['frequency']
-        camera.setFrequency(frequency)
-        quality = parameters['quality']
-
-
-    if command == 'close':
-        # paro el server de websockets
-        running = False
-        camera.Close()
 
 
 
@@ -163,7 +151,7 @@ def Service(connection_mode, operation_mode, external_broker, username, password
     global cap
     global colorDetector
     global camera
-    global op_mode
+
 
 
     print("Connection mode: ", connection_mode)
@@ -228,12 +216,11 @@ def Service(connection_mode, operation_mode, external_broker, username, password
     print("Waiting....")
     external_client.subscribe("+/service/#", 2)
     external_client.loop_start()
-    start_server_websockets()
 
-    '''start_server = websockets.serve(process_video, "localhost", 8765)  # Adjust the host and port
+    start_server = websockets.serve(process_video, "localhost", 8765)  # Adjust the host and port
     print("WebSocket server started.")
     asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()'''
+    asyncio.get_event_loop().run_forever()
 
 
 if __name__ == "__main__":

@@ -14,6 +14,8 @@ import numpy as np
 import asyncio
 import websockets
 
+
+
 async def receive_and_display_frames():
     global connectWebsocket
     global serverIP
@@ -125,7 +127,7 @@ def on_message(client, userdata, message):
 
     if command == "IP":
         serverIP = message.payload.decode("utf-8")
-        getServerIPBtn['text'] = 'Ya tengo la IP'
+        getServerIPBtn['text'] = 'Ya tengo la IP (' + serverIP + ')'
         getServerIPBtn['fg'] = 'white'
         getServerIPBtn['bg'] = 'green'
 
@@ -215,11 +217,19 @@ def stopVideoStream ():
 
 def close():
     global client, ventana, runningWebsocketStreaming
-    client.publish("DashRemoto/service/closeCamera")
+    client.publish("DashRemoto/service/close")
     runningWebsocketStreaming = False
     ventana.destroy()
 
 
+
+def changeParameters ():
+    global frequencySldr, qualitySldr
+    parameters = {'quality':  int(qualitySldr.get()),
+                  'frequency': int(frequencySldr.get())}
+    parameters_json = json.dumps(parameters)
+
+    client.publish("DashRemoto/service/setParameters", parameters_json)
 
 def crear_ventana():
     global camera
@@ -244,6 +254,7 @@ def crear_ventana():
     ventana.rowconfigure(5, weight=1)
     ventana.rowconfigure(6, weight=1)
     ventana.rowconfigure(7, weight=1)
+    ventana.rowconfigure(8, weight=1)
     ventana.columnconfigure(0, weight=1)
 
 
@@ -264,22 +275,24 @@ def crear_ventana():
     frequencySldr.set(10)
     frequencySldr.grid(row=3, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
+    parametersBtn = tk.Button(ventana, text="Cambia parámetros", bg="dark orange",
+                                   command=changeParameters)
+    parametersBtn.grid(row=4, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+
 
     videoStreamMQTTBtn = tk.Button(ventana, text="Inicia video stream via MQTT", bg="dark orange", command=videoStreamMQTT)
-    videoStreamMQTTBtn.grid(row=4, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    videoStreamMQTTBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
     getServerIPBtn = tk.Button(ventana, text="Obtener IP del servidor (para conexión por  websocket)", bg="dark orange",
                                         command=getServerIP)
-    getServerIPBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    getServerIPBtn.grid(row=6, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
     videoStreamWebsocketBtn = tk.Button(ventana, text="Inicia video stream via websocket", bg="dark orange", command=videoStreamWebsocket)
-    videoStreamWebsocketBtn.grid(row=6, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    videoStreamWebsocketBtn.grid(row=7, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
-    '''stopVideoStreamBtn = tk.Button(ventana, text="Detener video stream", bg="dark orange", command=stopVideoStream)
-    stopVideoStreamBtn.grid(row=5, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
-    '''
+
     closeBtn = tk.Button(ventana, text="Cerrar", bg="dark orange", command = close)
-    closeBtn.grid(row=7, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
+    closeBtn.grid(row=8, column=0, padx=5, pady=5, sticky=tk.N + tk.S + tk.E + tk.W)
 
 
 

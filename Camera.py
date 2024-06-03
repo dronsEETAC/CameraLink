@@ -7,6 +7,8 @@ class Camera(object):
     def __init__(self):
         self.cap = cv.VideoCapture(0)
         self.videoStreaming = False
+        self.frequency = 0
+        self.quality = 0
 
     def TakePicture (self):
         '''for n in range(1, 50):
@@ -14,8 +16,7 @@ class Camera(object):
         ret, frame = self.cap.read()
         return ret, frame
 
-    def _start_video_stream (self, frequency, callback, params):
-        period = 1 / frequency
+    def _start_video_stream (self, callback, params):
 
         while self.videoStreaming:
             # Read Frame
@@ -26,14 +27,17 @@ class Camera(object):
                 else:
                     callback(frame)
 
-                time.sleep(period)
+                time.sleep(1/ self.frequency)
 
+    def setFrequency (self, frequency):
+        self.frequency = frequency
 
     def StartVideoStream (self, frequency, callback, params = None):
         self.videoStreaming = True
+        self.frequency = frequency
         streamingThread = threading.Thread(
             target=self._start_video_stream,
-            args=[frequency, callback, params])
+            args=[callback, params])
         streamingThread.start()
 
 
