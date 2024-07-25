@@ -60,3 +60,16 @@ El script _Service.py_ tiene un parámetro que puede tomar el valor _simulation_
 Para poner en marcha este demostrador es necesario instalar las librerías _paho_mqtt_ (ATENCIÓN: versión 1.6.1), _websockets_ y _netifaces_.
   
 Este vídeo muestra el demostrador en funcionamiento, en modo _simulation_.     
+
+## Transmisión del stream de vídeo via websocket    
+Con frecuencia es necesario trasmitir el stream de vídeo desde el módulo en el que se captura hacia cualquier otro del DEE (ya sea una estación de tierra en python o una webApp o una aplicación en Flutter). De hecho, eso es exactamente lo que ocurre en el segundo demostrador que se ha mostrado en el apartado anterior.    
+
+En las primeras implementaciones de módulos del DEE se usaba un broker MQTT para la trasmisión del stream de video. Los resultados no eran satisfactorios. El resultado mejora mucho si se usa una trasmisión directa mediante websocket (como se  hace en el demostrador mencionado).    
+En la carpeta _webSocketDemo_ de este repositorio pueden encontrarse códigos que ejemplifican como implementar esta comunicación via websockets. El fichero _server.py_ contiene un script que espera conexión via websocket para enviar el stream de video al módulo que se ha conectado. El fichero _client.py_ es un ejemplo de cliente que se conecta al server y recibe el stream de video. Los códigos son los mismos que los usados en els segundo demostrador de apartado anterior.   
+
+La carpeta _clientWebApp_ contiene una aplicación en Vue (webApp) que actua como cliente. Se conecta tambien al server y recibe el stream de video.    
+
+El siguiente vídeo muestra estas aplicaciones en acción.   
+
+Los detalles de cómo realizar la trasmisión de videostream entre un servidor en python y un módulo en Flutter pueden encontrarse en este repositorio:
+
