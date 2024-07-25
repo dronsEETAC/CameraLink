@@ -56,5 +56,7 @@ El demostrador usa dos mecanismos diferentes para trasmitir el stream de video e
 El segundo mecanismo es la comunicació via websockets directa entre los dos módulos. Los brokers MQTT también usan websockets pero con una sobrecarga de gestión de las publicaciones y subscripciones responsable de esos retrasos antes mencionados. El uso de websockets directamente elimina esa sobrecarga y hace que la experiencia de usuario mejore significativamente. La aplicación de estación de tierra permite comparar el resultado de la transmisión via broker con la trasmisión via websockets.    
 
 El script _Service.py_ tiene un parámetro que puede tomar el valor _simulation_ o _production_. Se usa el primer valor si quieremos probar el demostrador captando las imágenes de la cámara del portátil. Usaremos el segundo valor si _Service.py_ se ejecuta en la RPi abordo del dron.     
+
+Para poner en marcha este demostrador es necesario instalar las librerías _paho_mqtt_ (ATENCIÓN: versión 1.6.1), _websockets_ y _netifaces_.
   
 Este vídeo muestra el demostrador en funcionamiento, en modo _simulation_.     
