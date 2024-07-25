@@ -1,0 +1,16 @@
+En la RPi tenemos la carpeta camLib/demo_CameraLib
+Alli puede ponerse en marcha el servicio ServiceWebSockets.py
+Lo ponemos en marcha asi:
+python3 ServiceWebSockets.py global production classpip_cred dronsEETAC mimara1456.
+
+Ahora podemos poner el DashRemoto. El portatil y la RPi deben estar conectados a la misma wifi
+Para ver la wifi a la que está conectada la RPi hacer:
+iwgetid -r
+
+
+Estas son las librerias que hay que instalar
+
+paho-mqtt (1.6.1)
+opencv-python
+websockets
+netifaces

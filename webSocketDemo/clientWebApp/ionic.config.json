@@ -1,0 +1,7 @@
+{
+  "name": "videoStreamClient",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue-vite"
+}
