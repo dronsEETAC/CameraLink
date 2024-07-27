@@ -79,5 +79,7 @@ El siguiente vídeo muestra estas aplicaciones en acción.
 
 [![](https://markdown-videos-api.jorgenkh.no/url?url=https%3A%2F%2Fwww.youtube.com%2Fwatch%3Fv%3D6CkbMod6tO0)](https://www.youtube.com/watch?v=6CkbMod6tO0)
 
-Los detalles de cómo realizar la trasmisión de videostream entre un servidor en python y un módulo en Flutter pueden encontrarse en este repositorio:
+Los detalles de cómo realizar la trasmisión de videostream entre un servidor en python y un módulo en Flutter pueden encontrarse en este repositorio:     
+[![DroneEngineeringEcosystem Badge](https://img.shields.io/badge/DEE-dronestream_websockets-blue.svg)](https://github.com/dronsEETAC/dronestream_websockets)   
+
 
