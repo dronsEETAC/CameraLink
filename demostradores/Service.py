@@ -112,7 +112,7 @@ def on_message(client, userdata, message):
     if command == "startVideoStreamMQTT":
         print("start video stream via MQTT")
         parameters = json.loads(message.payload)
-        camera.StartVideoStream(parameters['frequency'], publish_video_stream, parameters['quality']  )
+        camera.StartVideoStream(parameters['frequency'], publish_video_stream, parameters['quality'])
 
     if command == "startVideoStreamWebsocket":
         print("start video stream via webSockets")
@@ -156,93 +156,10 @@ def on_connect(client, userdata, flags, rc):
     else:
         print("Bad connection")
 
-def Service2(connection_mode, operation_mode, external_broker, username, password):
-    global op_mode
-    global external_client
-    global internal_client
-    global state
-    global cap
-    global colorDetector
-    global camera
-    global op_mode
-
-
-    print("Connection mode: ", connection_mode)
-    print("Operation mode: ", operation_mode)
-    op_mode = operation_mode
-
-    camera = Camera()
-    print('ya tengo la camara activa')
-
-    external_client = mqtt.Client("Service", transport="websockets")
-    external_client.on_message = on_message
-    external_client.on_connect = on_connect
-
-    if connection_mode == "global":
-        if external_broker == "hivemq":
-            external_client.connect("broker.hivemq.com", 8000)
-            print("Connected to broker.hivemq.com:8000")
-
-        elif external_broker == "hivemq_cert":
-            external_client.tls_set(
-                ca_certs=None,
-                certfile=None,
-                keyfile=None,
-                cert_reqs=ssl.CERT_REQUIRED,
-                tls_version=ssl.PROTOCOL_TLS,
-                ciphers=None,
-            )
-            external_client.connect("broker.hivemq.com", 8884)
-            print("Connected to broker.hivemq.com:8884")
-
-        elif external_broker == "classpip_cred":
-            external_client.username_pw_set(username, password)
-            external_client.connect("classpip.upc.edu", 8000)
-            print("Connected to classpip.upc.edu:8000")
-
-        elif external_broker == "classpip_cert":
-            external_client.username_pw_set(username, password)
-            external_client.tls_set(
-                ca_certs=None,
-                certfile=None,
-                keyfile=None,
-                cert_reqs=ssl.CERT_REQUIRED,
-                tls_version=ssl.PROTOCOL_TLS,
-                ciphers=None,
-            )
-            external_client.connect("classpip.upc.edu", 8883)
-            print("Connected to classpip.upc.edu:8883")
-        elif external_broker == "localhost":
-            external_client.connect("localhost", 8000)
-            print("Connected to localhost:8000")
-        elif external_broker == "localhost_cert":
-            print("Not implemented yet")
-
-    elif connection_mode == "local":
-        if operation_mode == "simulation":
-            external_client.connect("localhost", 8000)
-            print("Connected to localhost:8000")
-        else:
-            external_client.connect("10.10.10.1", 8000)
-            print("Connected to 10.10.10.1:8000")
-
-    print("Waiting....")
-    external_client.subscribe("+/service/#", 2)
-    external_client.loop_start()
-    start_server_websockets()
-
-    '''start_server = websockets.serve(process_video, "localhost", 8765)  # Adjust the host and port
-    print("WebSocket server started.")
-    asyncio.get_event_loop().run_until_complete(start_server)
-    asyncio.get_event_loop().run_forever()'''
 
 def Service(operation_mode):
-
     global client
 
-    global state
-    global cap
-    global colorDetector
     global camera
     global op_mode
 
@@ -257,10 +174,8 @@ def Service(operation_mode):
     client = mqtt.Client("Service"+ str(randomId), transport="websockets")
     client.on_message = on_message
     client.on_connect = on_connect
-
-    client.username_pw_set('dronsEETAC', 'mimara1456.')
-    client.connect("classpip.upc.edu", 8000)
-    print("Connected to classpip.upc.edu:8000")
+    client.connect("broker.hivemq.com", 8000)
+    print("Connected to broker.hivemq.com:8000")
     print("Waiting....")
     client.subscribe("+/service/#", 2)
     client.loop_start()
@@ -271,5 +186,4 @@ def Service(operation_mode):
 if __name__ == "__main__":
     import sys
     operation_mode = sys.argv[1]  # simulation o production
-
     Service(operation_mode)

@@ -18,9 +18,7 @@ async def receive_and_display_frames():
     global connectWebsocket
     global serverIP
     global runningWebsocketStreaming
-    uri = "ws://localhost:8765"  # Adjust the WebSocket server URL
     uri = "ws://"+serverIP+":8765"  # We conecto por websocket con el servicio
-    print ('uri ', uri)
     frame_count = 0
     is_processing = False  # Flag to track if the client is busy processing a frame
 
@@ -127,9 +125,8 @@ def connect ():
     client = mqtt.Client("DashRemoto"+str(randomId), transport="websockets")
     client.on_message = on_message
     client.on_connect = on_connect
-    client.username_pw_set("dronsEETAC", "mimara1456.")
-    client.connect("classpip.upc.edu", 8000)
-    print("Connected to classpip.upc.edu:8000")
+    client.connect("broker.hivemq.com", 8000)
+    print("Connected to broker.hivemq.com:8000")
     client.subscribe("service/DashRemoto/#", 2)
     client.loop_start()
 

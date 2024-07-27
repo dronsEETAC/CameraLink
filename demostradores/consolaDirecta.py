@@ -1,6 +1,4 @@
 from CameraLink.Camera import *
-
-
 import cv2 as cv
 
 def showVideoStream (frame):
@@ -13,9 +11,12 @@ print ('Ya tengo la cámara preparada')
 
 print ('pido una foto')
 ret, frame = camera.TakePicture()
-cv.imshow("Picture", frame)
-cv.waitKey(1)
-time.sleep (5)
+if ret:
+    cv.imshow("Picture", frame)
+    cv.waitKey(1)
+    time.sleep (5)
+else:
+    print ('error')
 
 print ('pido otra foto')
 ret,frame = camera.TakePicture()

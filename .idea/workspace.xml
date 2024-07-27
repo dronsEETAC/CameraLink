@@ -5,39 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="f0103b28-1241-495a-9952-23178f9b4d55" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/CamLib.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Camera.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/DashRemoto.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Dron.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Service.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ServiceWebSockets.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/ServiceWebSockets_1.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/client.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/closeWindowEvent.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/consolaDirecta.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/consolaRemota.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_RTL_Land.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_arm.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_connect.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_flightPlan.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_goto.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_localGeofence.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_local_telemetry.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_mission.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_mov.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_nav.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_parameters.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_setGeofence.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_takeOff.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_telemetry.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/dron_telemetry2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/prueba.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/modules/prueba2.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demostradores/DashRemoto.py" beforeDir="false" afterPath="$PROJECT_DIR$/demostradores/DashRemoto.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demostradores/Service.py" beforeDir="false" afterPath="$PROJECT_DIR$/demostradores/Service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/demostradores/consolaDirecta.py" beforeDir="false" afterPath="$PROJECT_DIR$/demostradores/consolaDirecta.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +34,7 @@
     "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.server">
+  <component name="RunManager" selected="Python.Service">
     <configuration name="DashRemoto" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="CameraLink" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -149,7 +120,7 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/webSocketDemo/server.py" />
-      <option name="PARAMETERS" value="" />
+      <option name="PARAMETERS" value="simulation" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
@@ -166,11 +137,11 @@
     </list>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.server" />
-        <item itemvalue="Python.client" />
         <item itemvalue="Python.DashRemoto" />
         <item itemvalue="Python.Service" />
         <item itemvalue="Python.consolaDirecta" />
+        <item itemvalue="Python.server" />
+        <item itemvalue="Python.client" />
       </list>
     </recent_temporary>
   </component>
